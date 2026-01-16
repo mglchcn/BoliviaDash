@@ -23,7 +23,7 @@
     <div id="loader">
         <div class="text-center">
             <i class="fas fa-circle-notch fa-spin fa-3x text-blue-500 mb-4"></i>
-            <p>Conectando con Google Sheets...</p>
+            <p>Conectando con los datos...</p>
         </div>
     </div>
 
@@ -120,7 +120,7 @@
             </div>
         </div>
         <footer class="mt-10 text-center text-gray-500 text-sm">
-            <p>Datos gestionados vía Google Sheets.</p>
+            <p>Datos gestionados vía VCGP</p>
         </footer>
     </div>
 
@@ -224,10 +224,16 @@
             const pibVals = (datos['g_pib_vals'] || '').split(',').map(Number);
             
             const balLabels = (datos['g_bal_labels'] || '').split(',');
-            const balExp = (datos['g_bal_exp'] || '').split(',').map(Number);
-            const balImp = (datos['g_bal_imp'] || '').split(',').map(Number);
+            // Aseguramos que si hay ceros o nulos, se traten como números (0)
+            const balExp = (datos['g_bal_exp'] || '').split(',').map(val => Number(val) || 0);
+            const balImp = (datos['g_bal_imp'] || '').split(',').map(val => Number(val) || 0);
 
-            // Gráfico Línea
+            // --- NUEVO: Calcular el Saldo Comercial ---
+            // Recorremos el array de exportaciones y le restamos la importación correspondiente
+            const balSaldo = balExp.map((exp, index) => exp - balImp[index]);
+
+
+            // Gráfico Línea (PIB) - SIN CAMBIOS
             new Chart(document.getElementById('chartPibLine'), {
                 type: 'line',
                 data: {
@@ -244,17 +250,54 @@
                 options: { responsive: true, plugins: { legend: { display: false } } }
             });
 
-            // Gráfico Barras
+            // --- Gráfico Barras + Línea (BALANZA MEJORADO) ---
             new Chart(document.getElementById('chartBalanza'), {
+                // El tipo base sigue siendo 'bar'
                 type: 'bar',
                 data: {
                     labels: balLabels,
                     datasets: [
-                        { label: 'Export', data: balExp, backgroundColor: '#10b981' },
-                        { label: 'Import', data: balImp, backgroundColor: '#ef4444' }
+                        // --- NUEVO DATASET: La línea del Saldo ---
+                        // Es crucial definir 'type: line' aquí para anular el tipo base.
+                        // Lo ponemos primero en la lista y con 'order: 0' para que se dibuje ENCIMA de las barras.
+                        {
+                            type: 'line', 
+                            label: 'Saldo Comercial (Neto)',
+                            data: balSaldo, // Usamos el dato calculado arriba
+                            borderColor: '#2563eb', // Color Azul intenso distintivo
+                            backgroundColor: '#2563eb', // Color del punto
+                            borderWidth: 3, // Línea más gruesa para destacar
+                            pointRadius: 5, // Puntos visibles
+                            pointHoverRadius: 8,
+                            fill: false, // Solo línea, sin relleno debajo
+                            tension: 0.1, // Línea más recta para mostrar cambios bruscos
+                            order: 0 // Prioridad de dibujado (al frente)
+                        },
+                        // --- Las Barras Originales ---
+                        // Añadimos 'order: 1' para que queden detrás de la línea
+                        { label: 'Export', data: balExp, backgroundColor: '#10b981', order: 1 },
+                        { label: 'Import', data: balImp, backgroundColor: '#ef4444', order: 1 }
                     ]
                 },
-                options: { responsive: true }
+                options: { 
+                    responsive: true,
+                    interaction: {
+                        mode: 'index', // Al pasar el mouse muestra los 3 datos del mes a la vez
+                        intersect: false
+                    },
+                    scales: {
+                        y: {
+                           // Aseguramos que el eje Y empiece en 0 para ver bien los déficits negativos
+                           beginAtZero: true,
+                           grid: {
+                               // --- NUEVO: Truco visual ---
+                               // Dibuja la línea del cero un poco más oscura para referencia rápida
+                               color: (context) => context.tick.value === 0 ? '#6b7280' : '#e5e7eb',
+                               lineWidth: (context) => context.tick.value === 0 ? 2 : 1
+                           }
+                       }
+                   }
+                }
             });
         }
 
