@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitor Macroeconómico Bolivia</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* Personalización suave */
+        body { background-color: #f3f4f6; font-family: 'Segoe UI', sans-serif; }
+        .card { transition: transform 0.2s; }
+        .card:hover { transform: translateY(-5px); }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <nav class="bg-slate-900 text-white p-4 shadow-lg">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold"><i class="fas fa-chart-line mr-2"></i>Macro Bolivia Dashboard</h1>
+            <span class="text-sm text-gray-400" id="last-update">Actualizado: --/--/----</span>
+        </div>
+    </nav>
+
+    <div class="container mx-auto p-6">
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-lg shadow p-5 card border-l-4 border-blue-500">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <p class="text-gray-500 text-sm font-bold uppercase">Crecimiento PIB</p>
+                        <h2 class="text-3xl font-bold text-gray-800" id="kpi-pib">0%</h2>
+                    </div>
+                    <div class="bg-blue-100 p-3 rounded-full text-blue-600">
+                        <i class="fas fa-globe-americas fa-lg"></i>
+                    </div>
+                </div>
+                <p class="text-sm text-green-500 mt-2 font-semibold"><i class="fas fa-arrow-up"></i> <span id="kpi-pib-var">0%</span> vs año anterior</p>
+            </div>
+
+            <div class="bg-white rounded-lg shadow p-5 card border-l-4 border-orange-500">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <p class="text-gray-500 text-sm font-bold uppercase">Inflación Acum.</p>
+                        <h2 class="text-3xl font-bold text-gray-800" id="kpi-inflacion">0%</h2>
+                    </div>
+                    <div class="bg-orange-100 p-3 rounded-full text-orange-600">
+                        <i class="fas fa-percentage fa-lg"></i>
+                    </div>
+                </div>
+                <p class="text-sm text-gray-500 mt-2">IPC General</p>
+            </div>
+
+            <div class="bg-white rounded-lg shadow p-5 card border-l-4 border-emerald-500">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <p class="text-gray-500 text-sm font-bold uppercase">RIN (Millones $us)</p>
+                        <h2 class="text-3xl font-bold text-gray-800" id="kpi-rin">0</h2>
+                    </div>
+                    <div class="bg-emerald-100 p-3 rounded-full text-emerald-600">
+                        <i class="fas fa-coins fa-lg"></i>
+                    </div>
+                </div>
+                 <p class="text-sm text-red-500 mt-2 font-semibold" id="rin-trend"><i class="fas fa-arrow-down"></i> Tendencia</p>
+            </div>
+
+            <div class="bg-white rounded-lg shadow p-5 card border-l-4 border-purple-500">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <p class="text-gray-500 text-sm font-bold uppercase">Desempleo Urbano</p>
+                        <h2 class="text-3xl font-bold text-gray-800" id="kpi-desempleo">0%</h2>
+                    </div>
+                    <div class="bg-purple-100 p-3 rounded-full text-purple-600">
+                        <i class="fas fa-users fa-lg"></i>
+                    </div>
+                </div>
+                <p class="text-sm text-gray-500 mt-2">Tasa trimestral</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <div class="bg-white p-6 rounded-lg shadow">
+                <h3 class="text-lg font-bold text-gray-700 mb-4">Evolución del Crecimiento del PIB (%)</h3>
+                <canvas id="chartPibLine"></canvas>
+            </div>
+
+            <div class="bg-white p-6 rounded-lg shadow">
+                <h3 class="text-lg font-bold text-gray-700 mb-4">Balanza Comercial (Export vs Import)</h3>
+                <canvas id="chartBalanza"></canvas>
+            </div>
+        </div>
+
+        <h3 class="text-xl font-bold text-gray-800 mb-4">Semáforo de Indicadores de Estabilidad</h3>
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+                
+                <div class="p-4 border rounded-lg">
+                    <h4 class="font-bold text-gray-600 mb-2">Déficit Fiscal</h4>
+                    <div id="semaforo-deficit-bg" class="w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-2 shadow-inner">
+                        <i id="semaforo-deficit-icon" class="fas fa-check text-white text-2xl"></i>
+                    </div>
+                    <p class="text-xl font-bold" id="val-deficit">0%</p>
+                    <p class="text-xs text-gray-400">Meta: < -3%</p>
+                </div>
+
+                <div class="p-4 border rounded-lg">
+                    <h4 class="font-bold text-gray-600 mb-2">Deuda Externa / PIB</h4>
+                    <div id="semaforo-deuda-bg" class="w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-2 shadow-inner">
+                        <i id="semaforo-deuda-icon" class="fas fa-check text-white text-2xl"></i>
+                    </div>
+                    <p class="text-xl font-bold" id="val-deuda">0%</p>
+                    <p class="text-xs text-gray-400">Umbral Riesgo: > 30%</p>
+                </div>
+
+                <div class="p-4 border rounded-lg">
+                    <h4 class="font-bold text-gray-600 mb-2">Brecha Cambiaria</h4>
+                    <div id="semaforo-cambio-bg" class="w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-2 shadow-inner">
+                        <i id="semaforo-cambio-icon" class="fas fa-exclamation text-white text-2xl"></i>
+                    </div>
+                    <p class="text-xl font-bold" id="val-cambio">0%</p>
+                    <p class="text-xs text-gray-400">Diferencia Oficial vs Paralelo</p>
+                </div>
+
+            </div>
+        </div>
+
+        <footer class="mt-10 text-center text-gray-500 text-sm">
+            <p>Fuentes: BCB, INE, Ministerio de Economía. Dashboard Open Source.</p>
+        </footer>
+    </div>
+
+    <script>
+        // ==========================================
+        //  ZONA DE DATOS (ACTUALIZA AQUÍ TUS NÚMEROS)
+        // ==========================================
+        const datosBolivia = {
+            fechaActualizacion: "16 Ene 2026",
+            
+            // Datos para Scorecards
+            kpi: {
+                pibCrecimiento: 2.2,      // Porcentaje
+                pibVariacion: 0.5,        // Variación vs año anterior
+                inflacion: 3.1,           // Porcentaje acumulado
+                rin: 1700,                // Millones de USD
+                desempleo: 4
