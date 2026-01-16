@@ -219,86 +219,135 @@
         }
 
         function crearGraficos(datos) {
-            // Parsea strings "2021,2022" a arrays ["2021", "2022"]
+            // 1. Parseo de datos (Igual que antes)
             const pibLabels = (datos['g_pib_labels'] || '').split(',');
             const pibVals = (datos['g_pib_vals'] || '').split(',').map(Number);
             
             const balLabels = (datos['g_bal_labels'] || '').split(',');
-            // Aseguramos que si hay ceros o nulos, se traten como números (0)
             const balExp = (datos['g_bal_exp'] || '').split(',').map(val => Number(val) || 0);
             const balImp = (datos['g_bal_imp'] || '').split(',').map(val => Number(val) || 0);
 
-            // --- NUEVO: Calcular el Saldo Comercial ---
-            // Recorremos el array de exportaciones y le restamos la importación correspondiente
+            // 2. Cálculo del Saldo (Export - Import)
             const balSaldo = balExp.map((exp, index) => exp - balImp[index]);
 
+            // --- Gráfico Línea (PIB) - SIN CAMBIOS ---
+            if (document.getElementById('chartPibLine')) {
+                // Destruir si existe previo para evitar superposiciones (opcional, buena práctica)
+                const chartStatus = Chart.getChart("chartPibLine"); 
+                if (chartStatus != undefined) { chartStatus.destroy(); }
 
-            // Gráfico Línea (PIB) - SIN CAMBIOS
-            new Chart(document.getElementById('chartPibLine'), {
-                type: 'line',
-                data: {
-                    labels: pibLabels,
-                    datasets: [{
-                        label: 'PIB %',
-                        data: pibVals,
-                        borderColor: '#3b82f6',
-                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                        tension: 0.4,
-                        fill: true
-                    }]
-                },
-                options: { responsive: true, plugins: { legend: { display: false } } }
-            });
-
-            // --- Gráfico Barras + Línea (BALANZA MEJORADO) ---
-            new Chart(document.getElementById('chartBalanza'), {
-                // El tipo base sigue siendo 'bar'
-                type: 'bar',
-                data: {
-                    labels: balLabels,
-                    datasets: [
-                        // --- NUEVO DATASET: La línea del Saldo ---
-                        // Es crucial definir 'type: line' aquí para anular el tipo base.
-                        // Lo ponemos primero en la lista y con 'order: 0' para que se dibuje ENCIMA de las barras.
-                        {
-                            type: 'line', 
-                            label: 'Saldo Comercial (Neto)',
-                            data: balSaldo, // Usamos el dato calculado arriba
-                            borderColor: '#2563eb', // Color Azul intenso distintivo
-                            backgroundColor: '#2563eb', // Color del punto
-                            borderWidth: 3, // Línea más gruesa para destacar
-                            pointRadius: 5, // Puntos visibles
-                            pointHoverRadius: 8,
-                            fill: false, // Solo línea, sin relleno debajo
-                            tension: 0.1, // Línea más recta para mostrar cambios bruscos
-                            order: 0 // Prioridad de dibujado (al frente)
-                        },
-                        // --- Las Barras Originales ---
-                        // Añadimos 'order: 1' para que queden detrás de la línea
-                        { label: 'Export', data: balExp, backgroundColor: '#10b981', order: 1 },
-                        { label: 'Import', data: balImp, backgroundColor: '#ef4444', order: 1 }
-                    ]
-                },
-                options: { 
-                    responsive: true,
-                    interaction: {
-                        mode: 'index', // Al pasar el mouse muestra los 3 datos del mes a la vez
-                        intersect: false
+                new Chart(document.getElementById('chartPibLine'), {
+                    type: 'line',
+                    data: {
+                        labels: pibLabels,
+                        datasets: [{
+                            label: 'PIB %',
+                            data: pibVals,
+                            borderColor: '#3b82f6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }]
                     },
-                    scales: {
-                        y: {
-                           // Aseguramos que el eje Y empiece en 0 para ver bien los déficits negativos
-                           beginAtZero: true,
-                           grid: {
-                               // --- NUEVO: Truco visual ---
-                               // Dibuja la línea del cero un poco más oscura para referencia rápida
-                               color: (context) => context.tick.value === 0 ? '#6b7280' : '#e5e7eb',
-                               lineWidth: (context) => context.tick.value === 0 ? 2 : 1
+                    options: { responsive: true, plugins: { legend: { display: false } } }
+                });
+            }
+
+            // --- Gráfico COMBINADO (Estilo Imagen Oficial) ---
+            if (document.getElementById('chartBalanza')) {
+                // Limpieza del canvas anterior
+                const chartStatus = Chart.getChart("chartBalanza");
+                if (chartStatus != undefined) { chartStatus.destroy(); }
+
+                new Chart(document.getElementById('chartBalanza'), {
+                    type: 'bar', // El tipo base es Barra (para el Saldo)
+                    data: {
+                        labels: balLabels,
+                        datasets: [
+                            // 1. LÍNEA: Exportaciones (Verde Oscuro)
+                            {
+                                type: 'line',
+                                label: 'Exportaciones',
+                                data: balExp,
+                                borderColor: '#166534', // Verde intenso (green-700)
+                                backgroundColor: '#166534',
+                                borderWidth: 2,
+                                pointRadius: 3,
+                                pointHoverRadius: 6,
+                                tension: 0.3, // Curvatura suave
+                                order: 0 // Prioridad 0: Se dibuja AL FRENTE
+                            },
+                            // 2. LÍNEA: Importaciones (Rojo Oscuro)
+                            {
+                                type: 'line',
+                                label: 'Importaciones',
+                                data: balImp,
+                                borderColor: '#b91c1c', // Rojo intenso (red-700)
+                                backgroundColor: '#b91c1c',
+                                borderWidth: 2,
+                                pointRadius: 3,
+                                pointHoverRadius: 6,
+                                tension: 0.3,
+                                order: 1 // Prioridad 1: Se dibuja detrás de export, pero delante de barras
+                            },
+                            // 3. BARRAS: Saldo Comercial (Azul Claro)
+                            {
+                                type: 'bar',
+                                label: 'Saldo Comercial',
+                                data: balSaldo,
+                                backgroundColor: (context) => {
+                                    // Azul para positivo, Naranja suave para negativo (opcional)
+                                    // O simplemente azul claro como en la imagen:
+                                    return '#93c5fd'; // (blue-300)
+                                },
+                                order: 2 // Prioridad 2: Se dibuja AL FONDO
+                            }
+                        ]
+                    },
+                    options: { 
+                        responsive: true,
+                        interaction: {
+                            mode: 'index', 
+                            intersect: false,
+                        },
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                                labels: { usePointStyle: true }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        if (label) { label += ': '; }
+                                        if (context.parsed.y !== null) {
+                                            label += new Intl.NumberFormat('es-BO', { style: 'currency', currency: 'USD', maximumSignificantDigits: 3 }).format(context.parsed.y) + ' M';
+                                        }
+                                        return label;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                               beginAtZero: false, // Permite que las líneas floten si los números son altos
+                               grid: {
+                                   color: '#e5e7eb',
+                                   // Línea cero marcada más fuerte
+                                   lineWidth: (ctx) => ctx.tick.value === 0 ? 2 : 1,
+                                   color: (ctx) => ctx.tick.value === 0 ? '#9ca3af' : '#e5e7eb',
+                               }
+                           },
+                           x: {
+                               ticks: {
+                                   maxRotation: 90, // Rota etiquetas si son muchas (como en tu imagen)
+                                   minRotation: 0
+                               }
                            }
                        }
-                   }
-                }
-            });
+                    }
+                });
+            }
         }
 
         // Arrancar
