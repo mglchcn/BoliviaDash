@@ -36,6 +36,7 @@
 
     <div class="container mx-auto p-6">
         
+        <!-- Tarjetas de KPIs -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <div class="bg-white rounded-lg shadow p-5 card border-l-4 border-blue-500">
                 <div class="flex justify-between items-center">
@@ -77,8 +78,51 @@
                 </div>
                 <p class="text-sm text-gray-500 mt-2">Tasa trimestral</p>
             </div>
+
+            <!-- Nuevos KPIs -->
+            <div class="bg-white rounded-lg shadow p-5 card border-l-4 border-teal-500">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <p class="text-gray-500 text-sm font-bold uppercase">Premio de Reporto</p>
+                        <h2 class="text-2xl font-bold text-gray-800" id="kpi-tasa">--</h2>
+                    </div>
+                    <div class="bg-teal-100 p-3 rounded-full text-teal-600"><i class="fas fa-hand-holding-usd fa-lg"></i></div>
+                </div>
+                <p class="text-sm text-gray-500 mt-2">BCB (Al 15 de mayo)</p>
+            </div>
+            <div class="bg-white rounded-lg shadow p-5 card border-l-4 border-indigo-500">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <p class="text-gray-500 text-sm font-bold uppercase">UFV</p>
+                        <h2 class="text-2xl font-bold text-gray-800" id="kpi-ufv">--</h2>
+                    </div>
+                    <div class="bg-indigo-100 p-3 rounded-full text-indigo-600"><i class="fas fa-home fa-lg"></i></div>
+                </div>
+                <p class="text-sm text-gray-500 mt-2">Al 15 de mayo</p>
+            </div>
+            <div class="bg-white rounded-lg shadow p-5 card border-l-4 border-pink-500">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <p class="text-gray-500 text-xs font-bold uppercase">Bolivianización Depósitos</p>
+                        <h2 class="text-2xl font-bold text-gray-800" id="kpi-depositos">--</h2>
+                    </div>
+                    <div class="bg-pink-100 p-3 rounded-full text-pink-600"><i class="fas fa-piggy-bank fa-lg"></i></div>
+                </div>
+                <p class="text-sm text-gray-500 mt-2">Ent. Financieras (15 mayo)</p>
+            </div>
+            <div class="bg-white rounded-lg shadow p-5 card border-l-4 border-cyan-500">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <p class="text-gray-500 text-xs font-bold uppercase">Bolivianización Créditos</p>
+                        <h2 class="text-2xl font-bold text-gray-800" id="kpi-credito">--</h2>
+                    </div>
+                    <div class="bg-cyan-100 p-3 rounded-full text-cyan-600"><i class="fas fa-handshake fa-lg"></i></div>
+                </div>
+                <p class="text-sm text-gray-500 mt-2">Sector Privado (15 mayo)</p>
+            </div>
         </div>
 
+        <!-- Fila 1 de Gráficos (Originales) -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
             <div class="bg-white p-6 rounded-lg shadow">
                 <h3 class="text-lg font-bold text-gray-700 mb-4">Evolución del Crecimiento del PIB (%)</h3>
@@ -90,6 +134,39 @@
             </div>
         </div>
 
+        <!-- NUEVA: Fila 2 de Gráficos (Añadidos) -->
+        <div class="grid grid-cols-1 gap-6 mb-8">
+            <div class="bg-white p-6 rounded-lg shadow">
+                <h3 class="text-lg font-bold text-gray-700 mb-4">Inflación Interanual (%)</h3>
+                <canvas id="chartInflacion"></canvas>
+            </div>
+        </div>
+
+        <!-- TERCERA: Fila 3 de Gráficos (Nuevos) -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <div class="bg-white p-6 rounded-lg shadow">
+                <h3 class="text-lg font-bold text-gray-700 mb-4">Reservas Internacionales Netas vs Divisas RIN</h3>
+                <canvas id="chartReservas"></canvas>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow">
+                <h3 class="text-lg font-bold text-gray-700 mb-4">Tipo de Cambio</h3>
+                <canvas id="chartTipoCambio"></canvas>
+            </div>
+        </div>
+
+        <!-- CUARTA: Fila 4 de Gráficos (Nuevos) -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <div class="bg-white p-6 rounded-lg shadow">
+                <h3 class="text-lg font-bold text-gray-700 mb-4">Resultado Fiscal del SPNF</h3>
+                <canvas id="chartSPNF"></canvas>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow">
+                <h3 class="text-lg font-bold text-gray-700 mb-4">Depósitos y Créditos del Sistema Financiero</h3>
+                <canvas id="chartDepCred"></canvas>
+            </div>
+        </div>
+
+        <!-- Semáforo de Riesgo -->
         <h3 class="text-xl font-bold text-gray-800 mb-4">Semáforo de Riesgo Macroeconómico</h3>
         <div class="bg-white rounded-lg shadow p-6">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
@@ -128,8 +205,7 @@
         // ==========================================
         //  CONFIGURACIÓN: PEGA TU LINK AQUÍ
         // ==========================================
-        const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRyDGG4mzyIikFyThRm0J6ejYZRl5yOdJXY3K5i-lPzMWRv_nmu1mrfNHw_z4q24YXKjGtjQvz7m0op/pub?gid=0&single=true&output=csv'; 
-        // Ejemplo: 'https://docs.google.com/spreadsheets/d/e/2PACX-.../pub?output=csv'
+        const SHEET_URL = 'https://docs.google.com/spreadsheets/d/1VdYVIvf8hxoba7GA1Fowlcv957Xor5UfrwYMN6uYEFk/export?format=csv&gid=0'; 
         // ==========================================
 
         function init() {
@@ -141,7 +217,7 @@
 
             Papa.parse(SHEET_URL, {
                 download: true,
-                header: false, // Leemos por posición (Col A, Col B)
+                header: false, 
                 complete: function(results) {
                     procesarDatos(results.data);
                 },
@@ -153,15 +229,12 @@
         }
 
         function procesarDatos(filas) {
-            // Convertimos el array de filas en un objeto fácil de usar: { 'kpi_pib': '2.5', ... }
             const datos = {};
             filas.forEach(fila => {
                 if(fila[0] && fila[1]) {
                     datos[fila[0].trim()] = fila[1].trim();
                 }
             });
-
-            console.log("Datos recibidos:", datos); // Para depuración
 
             // 1. Asignar Textos Simples
             safeText('last-update', `Actualizado: ${datos['fecha_act'] || 'N/A'}`);
@@ -174,19 +247,22 @@
             safeText('val-deuda', `${datos['sem_deuda']}%`);
             safeText('val-cambio', `${datos['sem_brecha']}%`);
 
+            safeText('kpi-tasa', datos['kpi_tasa']);
+            safeText('kpi-ufv', datos['kpi_ufv']);
+            safeText('kpi-depositos', datos['kpi_depositos']);
+            safeText('kpi-credito', datos['kpi_credito']);
+
             // 2. Ejecutar Semáforos
             updateSemaforo('semaforo-deficit', parseFloat(datos['sem_deficit']), 'deficit');
             updateSemaforo('semaforo-deuda', parseFloat(datos['sem_deuda']), 'deuda');
             updateSemaforo('semaforo-cambio', parseFloat(datos['sem_brecha']), 'brecha');
 
-            // 3. Generar Gráficos (Parseando las comas)
+            // 3. Generar Gráficos
             crearGraficos(datos);
 
-            // Quitar pantalla de carga
             document.getElementById('loader').style.display = 'none';
         }
 
-        // Función auxiliar para no romper si falta un dato
         function safeText(id, text) {
             const el = document.getElementById(id);
             if(el) el.textContent = text.includes('undefined') ? '--' : text;
@@ -219,23 +295,37 @@
         }
 
         function crearGraficos(datos) {
-            // 1. Parseo de datos (Igual que antes)
+            // --- Parseo de datos Originales ---
             const pibLabels = (datos['g_pib_labels'] || '').split(',');
             const pibVals = (datos['g_pib_vals'] || '').split(',').map(Number);
             
             const balLabels = (datos['g_bal_labels'] || '').split(',');
             const balExp = (datos['g_bal_exp'] || '').split(',').map(val => Number(val) || 0);
             const balImp = (datos['g_bal_imp'] || '').split(',').map(val => Number(val) || 0);
-
-            // 2. Cálculo del Saldo (Export - Import)
             const balSaldo = balExp.map((exp, index) => exp - balImp[index]);
 
-            // --- Gráfico Línea (PIB) - SIN CAMBIOS ---
+            const infLabels = (datos['g_inf_labels'] || '').split(',');
+            const infVals = (datos['g_inf_datos'] || datos['g_inf_vals'] || '').split(',').map(Number); // Actualizado a g_inf_datos
+
+            const resLabels = (datos['g_reservasdivisas_labels'] || '').split(',');
+            const resDatos = (datos['g_reservas_datos'] || '').split(',').map(Number);
+            const divDatos = (datos['g_divisas_datos'] || '').split(',').map(Number);
+
+            const tcLabels = (datos['g_tipocambio_labels'] || '').split(',');
+            const tcOf = (datos['g_tipocambio_of'] || '').split(',').map(Number);
+            const tcRef = (datos['g_tipocambio_ref'] || '').split(',').map(Number);
+
+            const spnfLabels = (datos['g_spnf_labels'] || '').split(',');
+            const spnfDatos = (datos['g_spnf_datos'] || '').split(',').map(Number);
+
+            const depCredLabels = (datos['g_depcred_labels'] || '').split(',');
+            const depDatos = (datos['g_dep_datos'] || '').split(',').map(Number);
+            const credDatos = (datos['g_cred_datos'] || '').split(',').map(Number);
+
+            // 1. Gráfico Línea (PIB)
             if (document.getElementById('chartPibLine')) {
-                // Destruir si existe previo para evitar superposiciones (opcional, buena práctica)
                 const chartStatus = Chart.getChart("chartPibLine"); 
                 if (chartStatus != undefined) { chartStatus.destroy(); }
-
                 new Chart(document.getElementById('chartPibLine'), {
                     type: 'line',
                     data: {
@@ -245,112 +335,168 @@
                             data: pibVals,
                             borderColor: '#3b82f6',
                             backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                            tension: 0.4,
-                            fill: true
+                            tension: 0.4, fill: true
                         }]
                     },
                     options: { responsive: true, plugins: { legend: { display: false } } }
                 });
             }
 
-            // --- Gráfico COMBINADO (Estilo Imagen Oficial) ---
+            // 2. Gráfico COMBINADO (Balanza)
             if (document.getElementById('chartBalanza')) {
-                // Limpieza del canvas anterior
                 const chartStatus = Chart.getChart("chartBalanza");
                 if (chartStatus != undefined) { chartStatus.destroy(); }
-
                 new Chart(document.getElementById('chartBalanza'), {
-                    type: 'bar', // El tipo base es Barra (para el Saldo)
+                    type: 'bar',
                     data: {
                         labels: balLabels,
                         datasets: [
-                            // 1. LÍNEA: Exportaciones (Verde Oscuro)
-                            {
-                                type: 'line',
-                                label: 'Exportaciones',
-                                data: balExp,
-                                borderColor: '#166534', // Verde intenso (green-700)
-                                backgroundColor: '#166534',
-                                borderWidth: 2,
-                                pointRadius: 3,
-                                pointHoverRadius: 6,
-                                tension: 0.3, // Curvatura suave
-                                order: 0 // Prioridad 0: Se dibuja AL FRENTE
-                            },
-                            // 2. LÍNEA: Importaciones (Rojo Oscuro)
-                            {
-                                type: 'line',
-                                label: 'Importaciones',
-                                data: balImp,
-                                borderColor: '#b91c1c', // Rojo intenso (red-700)
-                                backgroundColor: '#b91c1c',
-                                borderWidth: 2,
-                                pointRadius: 3,
-                                pointHoverRadius: 6,
-                                tension: 0.3,
-                                order: 1 // Prioridad 1: Se dibuja detrás de export, pero delante de barras
-                            },
-                            // 3. BARRAS: Saldo Comercial (Azul Claro)
-                            {
-                                type: 'bar',
-                                label: 'Saldo Comercial',
-                                data: balSaldo,
-                                backgroundColor: (context) => {
-                                    // Azul para positivo, Naranja suave para negativo (opcional)
-                                    // O simplemente azul claro como en la imagen:
-                                    return '#93c5fd'; // (blue-300)
-                                },
-                                order: 2 // Prioridad 2: Se dibuja AL FONDO
-                            }
+                            { type: 'line', label: 'Exportaciones', data: balExp, borderColor: '#166534', backgroundColor: '#166534', borderWidth: 2, pointRadius: 3, tension: 0.3, order: 0 },
+                            { type: 'line', label: 'Importaciones', data: balImp, borderColor: '#b91c1c', backgroundColor: '#b91c1c', borderWidth: 2, pointRadius: 3, tension: 0.3, order: 1 },
+                            { type: 'bar', label: 'Saldo Comercial', data: balSaldo, backgroundColor: '#93c5fd', order: 2 }
                         ]
                     },
                     options: { 
-                        responsive: true,
-                        interaction: {
-                            mode: 'index', 
-                            intersect: false,
-                        },
-                        plugins: {
-                            legend: {
-                                position: 'top',
-                                labels: { usePointStyle: true }
-                            },
-                            tooltip: {
-                                callbacks: {
-                                    label: function(context) {
-                                        let label = context.dataset.label || '';
-                                        if (label) { label += ': '; }
-                                        if (context.parsed.y !== null) {
-                                            label += new Intl.NumberFormat('es-BO', { style: 'currency', currency: 'USD', maximumSignificantDigits: 3 }).format(context.parsed.y) + ' M';
-                                        }
-                                        return label;
-                                    }
-                                }
-                            }
-                        },
-                        scales: {
-                            y: {
-                               beginAtZero: false, // Permite que las líneas floten si los números son altos
-                               grid: {
-                                   color: '#e5e7eb',
-                                   // Línea cero marcada más fuerte
-                                   lineWidth: (ctx) => ctx.tick.value === 0 ? 2 : 1,
-                                   color: (ctx) => ctx.tick.value === 0 ? '#9ca3af' : '#e5e7eb',
-                               }
-                           },
-                           x: {
-                               ticks: {
-                                   maxRotation: 90, // Rota etiquetas si son muchas (como en tu imagen)
-                                   minRotation: 0
-                               }
-                           }
-                       }
+                        responsive: true, 
+                        interaction: { mode: 'index', intersect: false },
+                        plugins: { legend: { position: 'top' } }
                     }
+                });
+            }
+
+            // 3. NUEVO: Gráfico Línea (Inflación)
+            if (document.getElementById('chartInflacion')) {
+                const chartStatus = Chart.getChart("chartInflacion"); 
+                if (chartStatus != undefined) { chartStatus.destroy(); }
+                new Chart(document.getElementById('chartInflacion'), {
+                    type: 'line',
+                    data: {
+                        labels: infLabels,
+                        datasets: [{
+                            label: 'Inflación %',
+                            data: infVals, // Corregido: uso de la variable infVals
+                            borderColor: '#f97316', // Naranja
+                            backgroundColor: 'rgba(249, 115, 22, 0.1)',
+                            tension: 0.4, fill: true
+                        }]
+                    },
+                    options: { responsive: true, plugins: { legend: { display: false } } }
+                });
+            }
+
+            // 5. Gráfico Reservas y Divisas
+            if (document.getElementById('chartReservas')) {
+                const chartStatus = Chart.getChart("chartReservas"); 
+                if (chartStatus != undefined) { chartStatus.destroy(); }
+                new Chart(document.getElementById('chartReservas'), {
+                    type: 'line',
+                    data: {
+                        labels: resLabels,
+                        datasets: [
+                            {
+                                label: 'Reservas Int. Netas',
+                                data: resDatos,
+                                borderColor: '#059669', // Verde oscuro
+                                backgroundColor: 'rgba(5, 150, 105, 0.1)',
+                                tension: 0.3, fill: true
+                            },
+                            {
+                                label: 'Divisas RIN',
+                                data: divDatos,
+                                borderColor: '#d97706', // Naranja/Ambar
+                                backgroundColor: '#d97706',
+                                borderDash: [5, 5], // Línea punteada para contraste visual
+                                tension: 0.3, fill: false
+                            }
+                        ]
+                    },
+                    options: { responsive: true, plugins: { legend: { position: 'top' } } }
+                });
+            }
+
+            // 6. Gráfico Tipo de Cambio
+            if (document.getElementById('chartTipoCambio')) {
+                const chartStatus = Chart.getChart("chartTipoCambio"); 
+                if (chartStatus != undefined) { chartStatus.destroy(); }
+                new Chart(document.getElementById('chartTipoCambio'), {
+                    type: 'line',
+                    data: {
+                        labels: tcLabels,
+                        datasets: [
+                            {
+                                label: 'Tipo de Cambio Oficial',
+                                data: tcOf,
+                                borderColor: '#2563eb', // Azul
+                                backgroundColor: '#2563eb',
+                                tension: 0.1
+                            },
+                            {
+                                label: 'Tipo de Cambio Referencial',
+                                data: tcRef,
+                                borderColor: '#dc2626', // Rojo
+                                backgroundColor: '#dc2626',
+                                tension: 0.1
+                            }
+                        ]
+                    },
+                    options: { responsive: true, plugins: { legend: { position: 'top' } } }
+                });
+            }
+
+            // 7. Gráfico Resultado Fiscal SPNF
+            if (document.getElementById('chartSPNF')) {
+                const chartStatus = Chart.getChart("chartSPNF"); 
+                if (chartStatus != undefined) { chartStatus.destroy(); }
+                new Chart(document.getElementById('chartSPNF'), {
+                    type: 'bar',
+                    data: {
+                        labels: spnfLabels,
+                        datasets: [{
+                            label: 'Resultado Fiscal SPNF',
+                            data: spnfDatos,
+                            backgroundColor: function(context) {
+                                // Color dinámico: Rojo si es déficit (menor a 0), Verde si es superávit
+                                const index = context.dataIndex;
+                                const value = context.dataset.data[index];
+                                return value < 0 ? '#ef4444' : '#22c55e'; 
+                            },
+                            borderRadius: 4
+                        }]
+                    },
+                    options: { responsive: true, plugins: { legend: { display: false } } }
+                });
+            }
+
+            // 8. Gráfico Depósitos y Créditos
+            if (document.getElementById('chartDepCred')) {
+                const chartStatus = Chart.getChart("chartDepCred"); 
+                if (chartStatus != undefined) { chartStatus.destroy(); }
+                new Chart(document.getElementById('chartDepCred'), {
+                    type: 'line',
+                    data: {
+                        labels: depCredLabels,
+                        datasets: [
+                            {
+                                label: 'Depósitos (Ent. Intermediación)',
+                                data: depDatos,
+                                borderColor: '#0ea5e9', // Azul claro
+                                backgroundColor: '#0ea5e9',
+                                tension: 0.3
+                            },
+                            {
+                                label: 'Créditos (Al Sector Privado)',
+                                data: credDatos,
+                                borderColor: '#8b5cf6', // Violeta
+                                backgroundColor: '#8b5cf6',
+                                tension: 0.3
+                            }
+                        ]
+                    },
+                    options: { responsive: true, plugins: { legend: { position: 'top' } } }
                 });
             }
         }
 
-        // Arrancar
         init();
     </script>
 </body>
